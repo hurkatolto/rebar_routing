@@ -20,9 +20,9 @@
 
 -export([init/1
         ,do/1
-        ,format_error/1]).
+        ]).
 
--export([auto/0, flush/0]).
+-export([]).
 
 -define(PROVIDER, routing).
 -define(DEPS, [app_discovery]).
@@ -62,89 +62,21 @@ init(State) ->
             {short_desc, "Automatically run compile task on change of source file and reload modules."},
             {desc, ""}
     ]),
+    State1 = set_deps(State),
+    ?flog("~p ~p State1: '~p' ~n", [?MODULE, ?LINE, State1]),
     {ok, rebar_state:add_provider(State, Provider)}.
-
--spec format_error(any()) ->  iolist().
-format_error(Reason) ->
-    io_lib:format("~p", [Reason]).
-
 
 -spec do(rebar_state:t()) -> {ok, rebar_state:t()} | {error, string()}.
 do(State) ->
     ?flog("~p ~p State: '~p' ~n", [?MODULE, ?LINE, State]),
-    spawn(fun() ->
-            listen_on_project_apps(State),
-            ?MODULE:auto()
-        end),
-    State1 = remove_from_plugin_paths(State),
-    rebar_prv_shell:do(State1).
+    rebar_prv_shell:do(State).
 
--define(VALID_EXTENSIONS,[<<".erl">>, <<".hrl">>, <<".src">>, <<".config">>, <<".lock">>,
-    <<".c">>, <<".cpp">>, <<".h">>, <<".hpp">>, <<".cc">>]).
+set_deps(State) ->
+    Deps = rebar_state:all_deps(State),
+    ?flog("~p ~p Deps: '~p' ~n", [?MODULE, ?LINE, Deps]),
+    Deps2 = [],
+    State1 = rebar_state:set(State, deps, Deps2),
+    State1.
 
-auto() ->
-    case whereis(rebar_agent) of
-        undefined ->
-            timer:sleep(100);
 
-        _ ->
-            receive
-                {ChangedFile, _Events} ->
-                    Ext = filename:extension(unicode:characters_to_binary(ChangedFile)),
-                    IsValid = lists:member(Ext, ?VALID_EXTENSIONS),
-                    case IsValid of
-                        false -> pass;
-                        true ->
-                            % sleep here so messages can bottle up
-                            % or we can flush after compile?
-                            timer:sleep(200),
-                            flush(),
-                            rebar_agent:do(compile)
-                    end;
-                _ -> pass
-            end
 
-    end,
-    ?MODULE:auto().
-
-flush() ->
-    receive
-        _ ->
-            flush()
-    after
-        0 -> ok
-    end.
-
-listen_on_project_apps(State) ->
-    CheckoutDeps = [AppInfo ||
-        AppInfo <-rebar_state:all_deps(State),
-        rebar_app_info:is_checkout(AppInfo) == true
-    ],
-    ProjectApps = rebar_state:project_apps(State),
-    lists:foreach(
-        fun(AppInfo) ->
-            SrcDir = filename:join(rebar_app_info:dir(AppInfo), "src"),
-            CSrcDir = filename:join(rebar_app_info:dir(AppInfo), "c_src"),
-            case filelib:is_dir(SrcDir) of
-                true -> enotify:start_link(SrcDir);
-                false -> ignore
-            end,
-            case filelib:is_dir(CSrcDir) of
-                true -> enotify:start_link(CSrcDir);
-                false -> ignore
-            end
-        end,
-        ProjectApps ++ CheckoutDeps
-    ).
-
-remove_from_plugin_paths(State) ->
-    PluginPaths = rebar_state:code_paths(State, all_plugin_deps),
-    PluginsMinusAuto = lists:filter(
-        fun(Path) ->
-            Name = filename:basename(Path, "/ebin"),
-            not (list_to_atom(Name) =:= rebar_auto_plugin
-                orelse list_to_atom(Name) =:= enotify)
-        end,
-        PluginPaths
-    ),
-    rebar_state:code_paths(State, all_plugin_deps, PluginsMinusAuto).
