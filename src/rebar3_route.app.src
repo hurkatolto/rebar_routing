@@ -1,4 +1,4 @@
-{application,rebar3_auto,
+{application,rebar3_route,
              [{description,"Rebar3 plugin for handling application dependencies"},
               {vsn,"0.3.2"},
               {registered,[]},
