@@ -25,7 +25,7 @@
 -export([]).
 
 -define(PROVIDER, routing).
--define(DEPS, [app_discovery]).
+-define(DEPS, [install_deps]).
 
 %% ===================================================================
 %% Public API
