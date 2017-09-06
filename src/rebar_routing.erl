@@ -24,15 +24,15 @@
 
 -export([auto/0, flush/0]).
 
--define(PROVIDER, auto).
--define(DEPS, [compile]).
+-define(PROVIDER, routing).
+-define(DEPS, [app_discovery]).
 
 %% ===================================================================
 %% Public API
 %% ===================================================================
 -spec init(rebar_state:t()) -> {ok, rebar_state:t()}.
 init(State) ->
-    ?flog("~p ~p State: '~p' ~n", [?MODULE, ?LINE, State]),
+    ?flog("~p ~p State1: '~p' ~n", [?MODULE, ?LINE, State]),
     Provider = providers:create([
             {name, ?PROVIDER},        % The 'user friendly' name of the task
             {module, ?MODULE},        % The module implementation of the task
