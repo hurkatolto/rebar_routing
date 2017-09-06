@@ -8,4 +8,4 @@
               {maintainers,["Laszlo Toth"]},
               {licenses,["MIT"]},
               {links,[{"Github",
-                       "https://github.com/}]}]}.
+                       "https://github.com/"}]}]}.
