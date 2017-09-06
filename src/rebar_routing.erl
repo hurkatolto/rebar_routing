@@ -13,7 +13,7 @@
 %% ===> Fetching rebar_auto_plugin
 %% ===> Compiling rebar_auto_plugin'''
 %%
--module(rebar3_route).
+-module(rebar_routing).
 -behaviour(provider).
 
 -include("/Users/tothlac/mbin/flog.hrl").
