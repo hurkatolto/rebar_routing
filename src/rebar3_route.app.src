@@ -1,0 +1,11 @@
+{application,rebar3_auto,
+             [{description,"Rebar3 plugin for handling application dependencies"},
+              {vsn,"0.3.2"},
+              {registered,[]},
+              {applications,[kernel,stdlib]},
+              {env,[]},
+              {modules,[]},
+              {maintainers,["Laszlo Toth"]},
+              {licenses,["MIT"]},
+              {links,[{"Github",
+                       "https://github.com/}]}]}.
