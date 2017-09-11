@@ -25,7 +25,7 @@
 -export([]).
 
 -define(PROVIDER, routing).
--define(DEPS, [install_deps]).
+-define(DEPS, [app_discovery, install_deps]).
 
 %% ===================================================================
 %% Public API
@@ -62,18 +62,17 @@ init(State) ->
             {short_desc, "Automatically run compile task on change of source file and reload modules."},
             {desc, ""}
     ]),
-    State1 = set_deps(State),
-    ?flog("~p ~p State1: '~p' ~n", [?MODULE, ?LINE, State1]),
+    _State1 = set_deps(State),
     {ok, rebar_state:add_provider(State, Provider)}.
 
 -spec do(rebar_state:t()) -> {ok, rebar_state:t()} | {error, string()}.
 do(State) ->
-    ?flog("~p ~p State: '~p' ~n", [?MODULE, ?LINE, State]),
+    ?flog("~p ~p do: '~p' ~n", [?MODULE, ?LINE, do]),
     rebar_prv_shell:do(State).
 
 set_deps(State) ->
-    Deps = rebar_state:all_deps(State),
-    ?flog("~p ~p Deps: '~p' ~n", [?MODULE, ?LINE, Deps]),
+    ?flog("~p ~p set_deps: '~p' ~n", [?MODULE, ?LINE, set_deps]),
+    _Deps = rebar_state:all_deps(State),
     Deps2 = [],
     State1 = rebar_state:set(State, deps, Deps2),
     State1.
